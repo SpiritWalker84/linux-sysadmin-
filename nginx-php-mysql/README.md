@@ -6,7 +6,7 @@
 
 1. Клонируйте репозиторий:
     ```
-    git clone https://github.com/SpiritWalker84/nginx-php-mysql.git
+    git clone https://github.com/SpiritWalker84/linux-sysadmin-/tree/main/nginx-php-mysql
     cd nginx-php-mysql
     ```
 2. Запустите сервисы:
