@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  postgresql:
+    image: postgres:15
+    container_name: zabbix-postgresql
+    restart: unless-stopped
+    env_file:
+      - .env.postgresql
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - zabbix-net
+
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:alpine-6.4-latest
+    container_name: zabbix-server
+    restart: unless-stopped
+    env_file:
+      - .env.zabbix-server
+    volumes:
+      - zabbix_export:/var/lib/zabbix/export
+      - zabbix_snmptraps:/var/lib/zabbix/snmptraps
+    ports:
+      - "10051:10051"
+    depends_on:
+      - postgresql
+    networks:
+      - zabbix-net
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-pgsql:alpine-6.4-latest
+    container_name: zabbix-web
+    restart: unless-stopped
+    env_file:
+      - .env.zabbix-server
+    volumes:
+      - zabbix_web:/usr/share/zabbix
+    ports:
+      - "80:8080"
+      - "443:8443"
+    depends_on:
+      - postgresql
+      - zabbix-server
+    networks:
+      - zabbix-net
+
+  zabbix-agent:
+    image: zabbix/zabbix-agent2:alpine-6.4-latest
+    container_name: zabbix-agent
+    restart: unless-stopped
+    env_file:
+      - .env.zabbix-agent
+    ports:
+      - "10050:10050"
+    privileged: true
+    depends_on:
+      - zabbix-server
+    networks:
+      - zabbix-net
+
+volumes:
+  postgres_data:
+  zabbix_export:
+  zabbix_snmptraps:
+  zabbix_web:
+
+networks:
+  zabbix-net:
+    driver: bridge
+
