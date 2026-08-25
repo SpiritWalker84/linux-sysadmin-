@@ -1,41 +1,22 @@
-# Пример docker-compose: nginx + PHP + MySQL
+# nginx + PHP-FPM + MySQL
 
-Минимальный стек для тестирования web-приложений на PHP с использованием nginx и MySQL
+Минимальный LEMP в Compose: проверка, что php-fpm видит БД, nginx отдаёт PHP.
 
-## Как использовать
+## Запуск
 
-1. Клонируйте репозиторий:
-    ```
-    git clone https://github.com/SpiritWalker84/linux-sysadmin-/tree/main/nginx-php-mysql
-    cd nginx-php-mysql
-    ```
-2. Запустите сервисы:
-    ```
-    docker compose build
-    docker-compose up -d
-    ```
-3. Откройте в браузере:
-    ```
-    http://localhost:8080
-    ```
-
-## Особенности реализации
-
-- nginx обрабатывает входящие HTTP-запросы и проксирует PHP-файлы на php-fpm.
-- php-fpm собран на основе кастомного Dockerfile с предустановленным расширением mysqli (необходим для работы с MySQL в PHP).
-- MySQL развёрнут как отдельный сервис, начинается с тестовой базы.
-
-## Демо-страница
-
-- В каталоге /php лежит файл index.php, который показывает подключение к MySQL и выводит phpinfo.
-
----
-
- Остановка и удаление:
+```bash
+cd nginx-php-mysql
+docker compose up -d --build
 ```
-docker-compose down
 
-## Примечание
+Открыть http://localhost:8080 — должно быть «MySQL: ок».
 
- Для стабильной работы расширения mysqli оно устанавливается один раз на этапе сборки Docker-образа в Dockerfile, а не каждый раз при запуске контейнера.  
-Это предотвращает возможные ошибки запуска в режиме -d и избавляет от 502 Bad Gateway.
+Остановка: `docker compose down` (том с данными БД сохранится). Полный сброс: `docker compose down -v`.
+
+## Состав
+
+- **nginx 1.27** — статика и FastCGI на php:9000  
+- **PHP 8.3-FPM** — расширение mysqli  
+- **MySQL 8.4** — healthcheck, стендовые пароли только для локалки  
+
+Пароли в compose учебные. В прод так не выкладывать.

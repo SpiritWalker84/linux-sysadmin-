@@ -1,37 +1,27 @@
- Zabbix Monitoring Stack - Docker Compose
+# Zabbix + PostgreSQL
 
-Полнофункциональная система мониторинга Zabbix в контейнерах Docker. Проект демонстрирует навыки администрирования Linux и работы с контейнеризированными приложениями.
+Стенд мониторинга в Compose: сервер, веб (nginx внутри образа Zabbix), агент, Postgres.
 
-##  Технологии
-- Docker & Docker Compose
-- Zabbix 6.4 + PostgreSQL 15
-- Nginx + Alpine Linux
+## Запуск
 
-##  Запуск
+```bash
+cd zabbix_postgresql
+cp .env.postgresql.example .env.postgresql
+cp .env.zabbix-server.example .env.zabbix-server
+cp .env.zabbix-agent.example .env.zabbix-agent
+# один и тот же пароль в postgresql и zabbix-server
+docker compose up -d
+```
 
-1. Отредактируйсте .env файлы с паролями для PostgreSQL и Zabbix
-2. Запустите стек:
-sudo docker compose up -d
+Веб: http://localhost:8081  
+Логин по умолчанию Zabbix: `Admin` / `zabbix` (сменить после входа).
 
-3. Проверьте статус:
-sudo docker compose ps
+Первый старт БД может занять минуту-две.
 
+## Что смотреть на собесе
 
-##  Основные команды
-# Запуск/остановка
-sudo docker compose up -d
-sudo docker compose down
+- `docker compose ps` / `logs`
+- volumes: данные Postgres живут между `down`/`up`
+- агент в той же сети, без `privileged` — метрики контейнера, не всего хоста
 
-# Мониторинг
-sudo docker compose logs -f
-sudo docker stats
-
-
-## Доступ
-- Web интерфейс: http://localhost
-- Логин/пароль по умолчанию: Admin / zabbix
-
-## Данные
-- PostgreSQL данные, экспорты и конфигурации сохраняются в Docker volumes
-- Автоматический перезапуск контейнеров при сбоях
-
+Остановка: `docker compose down`. Сброс данных: `docker compose down -v`.

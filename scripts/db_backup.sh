@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Скрипт бэкапа баз данных MySQL и PostgreSQL
-# Автор: Junior Administrator
+# Бэкап MySQL / PostgreSQL, если в PATH есть mysqldump или pg_dump.
 
 # Цвета для вывода
 RED='\033[0;31m'
