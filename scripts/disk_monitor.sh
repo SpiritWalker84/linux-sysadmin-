@@ -1,46 +1,29 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Заполненность разделов. Порог: THRESHOLD (%).
+set -u
 
-# Скрипт для мониторинга места на дисках в Ubuntu
+THRESHOLD="${THRESHOLD:-80}"
 
-echo "=== МОНИТОРИНГ ДИСКОВОГО ПРОСТРАНСТВА ==="
-echo "Запуск: $(date)"
-echo ""
+echo "=== диск ($(date)) ==="
 
-# Пороговое значение в процентах, при котором срабатывает предупреждение
-THRESHOLD=80
+df -PTH -x tmpfs -x devtmpfs -x squashfs -x overlay | awk -v th="$THRESHOLD" '
+NR==1 { next }
+{
+  gsub(/%/, "", $6)
+  if ($6+0 >= th+0)
+    printf "ВНИМАНИЕ  %s  %s  %s%%\n", $1, $7, $6
+  else
+    printf "ок        %s  %s  %s%%\n", $1, $7, $6
+}'
 
-# Проверяем все диски в системе, исключая временные файловые системы
-df -h | grep -v tmpfs | grep -v udev | while read line
-do
-    # Извлекаем информацию о разделе
-    PARTITION=$(echo $line | awk '{print $1}')
-    USAGE_PERCENT=$(echo $line | awk '{print $5}' | sed 's/%//')
-    MOUNT_POINT=$(echo $line | awk '{print $6}')
-    
-    # Проверяем, что получили числовое значение (защита от пустых строк)
-    if [ ! -z "$USAGE_PERCENT" ] && [ "$USAGE_PERCENT" -eq "$USAGE_PERCENT" ] 2>/dev/null; then
-        # Сравниваем с пороговым значением
-        if [ "$USAGE_PERCENT" -gt "$THRESHOLD" ]; then
-            echo "  ВНИМАНИЕ! Раздел $PARTITION ($MOUNT_POINT) заполнен на $USAGE_PERCENT%"
-            echo "   Необходимо очистить место!"
-        else
-            echo "$PARTITION ($MOUNT_POINT): $USAGE_PERCENT% - норма"
-        fi
-    fi
-done
+echo
+echo "крупное в /home (если есть):"
+if [[ -d /home ]]; then
+  du -h --max-depth=1 /home 2>/dev/null | sort -hr | head -8
+fi
 
-echo ""
-echo "=== ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ ==="
-
-# Показываем самые большие папки в домашней директории
-echo "Самые большие папки в /home:"
-du -h /home --max-depth=1 2>/dev/null | sort -hr | head -10
-
-# Проверяем размер лог-файлов
-echo ""
-echo "Размер лог-файлов в /var/log:"
-sudo du -h /var/log/* 2>/dev/null | sort -hr | head -5
-
-echo ""
-echo "Мониторинг завершён: $(date)"
-
+if [[ -d /var/log ]] && [[ -r /var/log ]]; then
+  echo
+  echo "крупное в /var/log:"
+  du -h --max-depth=1 /var/log 2>/dev/null | sort -hr | head -8
+fi

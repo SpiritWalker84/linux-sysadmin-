@@ -1,24 +1,32 @@
 # Скрипты (Ubuntu / Debian)
 
-Мелкие bash-утилиты для повседневки. Не «система мониторинга предприятия» — проверка диска, служб, бэкап, логи, нагрузка.
+Утилиты для стенда: диск, службы, бэкап, логи, нагрузка. Не замена Zabbix/logrotate/cron из коробки.
 
-Проверялось на Ubuntu 22.04 / Debian 12. Запуск с хоста, не из Windows.
+Проверялось на Ubuntu 22.04 / Debian 12. Запуск **на Linux**, не в PowerShell.
 
 ```bash
 cd scripts
 chmod +x *.sh
 ./system_info.sh
 ./disk_monitor.sh
+./cpu_load.sh
+./servicechecker.sh
 ```
 
-| Скрипт | Зачем |
-|--------|--------|
-| `system_info.sh` | ОС, диск, память, сеть |
-| `disk_monitor.sh` | заполненность разделов, крупные каталоги |
-| `cpu_load.sh` | пороги CPU/RAM, топ процессов |
-| `servicechecker.sh` | статус systemd-служб; перезапуск только с `--restart` |
-| `backup.sh` | home + /etc, ротация старше 7 дней (логи — с root) |
-| `db_backup.sh` | mysqldump / pg_dump, если утилиты есть |
-| `logcleaner.sh` | ротация больших логов, journal (осторожно, лучше на стенде) |
+| Скрипт | Что делает | Осторожно |
+|--------|------------|-----------|
+| `system_info.sh` | ОС, диск, RAM, сеть, наличие служб | — |
+| `disk_monitor.sh` | `%` по разделам, крупное в `/home` | порог `THRESHOLD=80` |
+| `cpu_load.sh` | CPU за 0.5 с, RAM, топ процессов | лог в `~/load_monitor.log` |
+| `servicechecker.sh` | статус unit'ов; код 1 если что-то лежит | start только `--restart` |
+| `backup.sh` | tar home + `/etc` | каталог `/var/backups/linux-sysadmin` (не всё `/var/backups`) |
+| `db_backup.sh` | `mysqldump` / `pg_dumpall` если есть клиент | нужен доступ к БД |
+| `logcleaner.sh` | кто больше `MAX_SIZE_MB` | truncate только с `--rotate` |
 
-`backup.sh` пишет в `/var/backups` — обычно нужен `sudo`.
+Примеры:
+
+```bash
+sudo BACKUP_DIR=/var/backups/linux-sysadmin ./backup.sh
+./servicechecker.sh --restart
+./logcleaner.sh --rotate    # только если понимаешь, что режешь логи
+```
