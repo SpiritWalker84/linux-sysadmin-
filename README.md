@@ -16,7 +16,16 @@
 
 Linux (Debian/Ubuntu) · Docker Compose · nginx · PHP-FPM · MySQL · PostgreSQL · Zabbix · bash
 
-Чего **нет** в этом репозитории (и не надо приписывать в резюме): Ansible, Terraform, Grafana, репликация Postgres, «enterprise production».
+## Смежные репозитории (курс)
+
+Не часть этого репо — учебные работы по курсу сисадмина (Yandex Cloud / Skillfactory-стиль), не прод.
+
+| Репозиторий | Что там |
+|-------------|---------|
+| [Ansible](https://github.com/SpiritWalker84/Ansible) | inventory + роли: пакеты, nginx, кусок zabbix-agent |
+| [Terraform](https://github.com/SpiritWalker84/Terraform) | ВМ в Yandex Cloud |
+
+В **этом** репозитории нет Grafana, репликации Postgres и «enterprise production» — в резюме их не приписывать.
 
 ## Быстрый старт
 
